@@ -1,0 +1,293 @@
+@font-face {
+  font-family: "Agrandir Wide";
+    font-style: normal;
+  font-weight: 100 900;
+  src: url("../fonts/AgrandirVariable.woff2") format("woff");
+}
+
+@font-face {
+  font-family: "Telegraf";
+    font-style: normal;
+  font-weight: 100 900;
+  src: url("../fonts/TelegrafVariable.woff2") format("woff");
+}
+
+:root {
+  --color-accent: #6d57ff;
+  --color-secondary: #8A79FF;
+  --color-light: #f6f6f6;
+  --color-dark: #000;
+  --color-grey: #eee;
+}
+
+html {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: "Telegraf", sans-serif;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  margin: 0;
+  min-height: 100vh;
+  background: var(--color-light);
+  color: black;
+}
+
+main {
+  min-height: 100vh;
+  width: 100%;
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: "Agrandir Wide";
+  font-weight: bold;
+}
+
+h1 {
+  font-size: 3rem;
+}
+
+a {
+  color: black;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-row {
+  flex-direction: row;
+}
+
+.hero-background {
+  height: 100%;
+  width: 100%;
+  background-image: url("/bg.png");
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  height: 100%;
+  max-width: 1280px;
+}
+
+.logo {
+  width: 100%;
+  margin: auto;
+  margin-top: 4rem;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  gap: 2rem;
+}
+
+.hero {
+  height: 100%;
+  width: 100%;
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+}
+
+.copy {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.code {
+  padding: 0.25rem 0.5rem;
+  border-radius: 5px;
+  font-style: italic;
+  border: 2px solid var(--color-accent);
+}
+
+.hero-img {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 50%;
+}
+
+.btn {
+  min-width: 9.38em;
+  color: #fff;
+  background-color: var(--color-secondary);
+  background-image: none;
+  border: none;
+  border-radius: 100px;
+  justify-content: center;
+  align-items: center;
+  padding: 0.63rem 2.5em;
+  font-size: 1em;
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 0.3s, background-color 0.3s;
+  display: flex;
+  position: relative;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background-color: var(--color-accent);
+}
+
+
+.btn-light {
+  min-width: 9.38em;
+  color: var(--color-accent);
+  background-color: var(--color-light);
+  background-image: none;
+  border: 2px solid #6d57ff;
+  border-radius: 48px;
+  justify-content: center;
+  align-items: center;
+  padding: 0.63rem 2.5em;
+  font-family: "Telegraf", sans-serif;
+  font-size: 1em;
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 0.3s, background-color 0.3s;
+  display: flex;
+  position: relative;
+  cursor: pointer;
+}
+
+.btn-light:hover {
+  background: #6d57ff;
+  color: #fff;
+}
+
+.flex-btns {
+  display: flex;
+  flex-direction: row;
+}
+
+.flex-btns .btn {
+  margin-right: 10px;
+}
+
+
+.file-list a {
+  border-bottom: 2px solid var(--color-accent);
+  background: linear-gradient(to right, #6D57FF, #E397F9);
+  background-size: 200% 200%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: moving-gradient 2s linear infinite;
+}
+
+.file-list a:hover {
+  transform: scale(1.2);
+  transition: all 0.3s ease-in-out;
+}
+
+.grid-background {
+  background: var(--color-secondary);
+  height: 100%;
+  width: 100%
+}
+
+.grid {
+  max-width: 1280px;
+  min-height: 100%;
+  margin: 2rem auto 2rem auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+}
+
+.card {
+  text-align: center;
+  background-color: var(--color-light);
+  border-radius: 10px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 475px;
+  padding: 2rem;
+  gap: 1rem;
+}
+
+.card h2 {
+  font-family: "Telegraf", sans-serif;
+  font-weight: 700;
+}
+
+.card p {
+  max-width: 60%;
+}
+
+.footer-background {
+  background-color: var(--color-accent);
+  width: 100%;
+  height: 100%;
+}
+
+.footer {
+  height: 100%;
+  max-width: 1280px;
+  padding: 1.5rem auto 1.5rem auto !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--color-light);
+  margin: auto;
+}
+
+.footer p {
+  font-size: 0.75rem;
+}
+
+.socials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;
+  padding-top: 0.5rem;
+  margin-right: 1rem;
+}
+
+.socials svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+@keyframes moving-gradient {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
