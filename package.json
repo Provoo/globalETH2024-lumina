@@ -9,8 +9,10 @@
 		"lint": "next lint"
 	},
 	"dependencies": {
+		"@lit-protocol/auth-helpers": "^6.11.0",
 		"@lit-protocol/lit-node-client": "^6.0.0-beta.4",
 		"create-pinata-app": "0.1.0",
+		"ethers": "v5",
 		"next": "14.2.5",
 		"pinata": "^1.5.0",
 		"react": "^18",

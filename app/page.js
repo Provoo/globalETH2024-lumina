@@ -5,6 +5,14 @@ import Head from "next/head";
 import Image from "next/image";
 import Files from "@/components/Files";
 import * as LitJsSdk from "@lit-protocol/lit-node-client";
+import { ethers } from "ethers";
+
+import {
+  createSiweMessage,
+  generateAuthSig,
+  LitAbility,
+  LitAccessControlConditionResource,
+} from "@lit-protocol/auth-helpers";
 
 export default function Home() {
   const [file, setFile] = useState("");
@@ -16,9 +24,10 @@ export default function Home() {
 
   const uploadFile = async (fileToUpload) => {
     try {
+      const jsonExample = { cd: "23" };
       setUploading(true);
       const litNodeClient = new LitJsSdk.LitNodeClient({
-        litNetwork: "cayenne",
+        litNetwork: "datil-dev",
       });
       // then get the authSig
       await litNodeClient.connect();
@@ -26,7 +35,7 @@ export default function Home() {
         chain: "ethereum",
       });
 
-      const accs = [
+      const accessControlConditions = [
         {
           contractAddress: "",
           standardContractType: "",
@@ -39,16 +48,30 @@ export default function Home() {
           },
         },
       ];
-      const encryptedZip = await LitJsSdk.encryptFileAndZipWithMetadata({
-        accessControlConditions: accs,
-        authSig,
-        chain: "ethereum",
-        file: fileToUpload,
-        litNodeClient: litNodeClient,
-        readme: "Use IPFS CID of this file to decrypt it",
+
+      const { ciphertext, dataToEncryptHash } = await litNodeClient.encrypt({
+        dataToEncrypt: new TextEncoder().encode(JSON.stringify(jsonExample)),
+        accessControlConditions,
       });
-      const encryptedBlob = new Blob([encryptedZip], { type: "text/plain" });
-      const encryptedFile = new File([encryptedBlob], fileToUpload.name);
+
+      const fileJson = {
+        ciphertext,
+        dataToEncryptHash,
+        accessControlConditions,
+      };
+      //   const encryptedZip = await LitJsSdk.encryptFileAndZipWithMetadata({
+      //     accessControlConditions: accs,
+      //     authSig,
+      //     chain: "ethereum",
+      //     file: fileToUpload,
+      //     litNodeClient: litNodeClient,
+      //     readme: "Use IPFS CID of this file to decrypt it",
+      //   });
+
+      const encryptedBlob = new Blob([JSON.stringify(fileJson)], {
+        type: "application/json",
+      });
+      const encryptedFile = new File([encryptedBlob], "example2.json");
 
       const formData = new FormData();
       formData.append("file", encryptedFile, encryptedFile.name);
@@ -73,30 +96,82 @@ export default function Home() {
         method: "GET",
       });
 
-      console.log("resresrresr", fileRes);
-      const file = await fileRes.blob();
-      console.log("arrayBuffer", file);
+      //   console.log("resresrresr", fileRes);
+      //   const file = await fileRes.blob();
+      //   console.log("arrayBuffer", file);
+      const file = await fileRes.text();
+      console.log("filefilefilefilefile", file);
+      const { accessControlConditions, ciphertext, dataToEncryptHash } =
+        JSON.parse(file);
+      console.log(accessControlConditions);
+
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      const ethersSigner = provider.getSigner();
 
       const litNodeClient = new LitJsSdk.LitNodeClient({
-        litNetwork: "cayenne",
+        litNetwork: "datil-dev",
       });
+      // then get the authSig
       await litNodeClient.connect();
       const authSig = await LitJsSdk.checkAndSignAuthMessage({
         chain: "ethereum",
       });
 
-      const { decryptedFile, metadata } =
-        await LitJsSdk.decryptZipFileWithMetadata({
-          file: file,
-          litNodeClient: litNodeClient,
-          authSig: authSig,
-        });
-      const blob = new Blob([decryptedFile], {
-        type: "application/octet-stream",
+      console.log("authSigauthSigauthSig", authSig);
+      const sessionSigs = await litNodeClient.getSessionSigs({
+        chain: "ethereum",
+        expiration: new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString(), // 24 hours
+        resourceAbilityRequests: [
+          {
+            resource: new LitAccessControlConditionResource("*"),
+            ability: LitAbility.AccessControlConditionDecryption,
+          },
+        ],
+        authNeededCallback: async ({
+          resourceAbilityRequests,
+          expiration,
+          uri,
+        }) => {
+          const toSign = await createSiweMessage({
+            uri,
+            expiration, // 24 hours
+            resources: resourceAbilityRequests,
+            walletAddress: await ethersSigner.getAddress(),
+            nonce: await litNodeClient.getLatestBlockhash(),
+            litNodeClient: litNodeClient,
+          });
+
+          return await generateAuthSig({
+            signer: ethersSigner,
+            toSign,
+          });
+        },
       });
-      const downloadLink = document.createElement("a");
-      downloadLink.href = URL.createObjectURL(blob);
-      downloadLink.download = metadata.name; // Use the metadata to get the file name and type
+
+      const decryptString = await litNodeClient.decrypt({
+        accessControlConditions,
+        ciphertext, // return in ecreyption
+        dataToEncryptHash, //return encryption
+        chain: "ethereum",
+        sessionSigs,
+      });
+      console.log(decryptString);
+      console.log(new TextDecoder("utf-8").decode(decryptString.decryptedData));
+
+      //   const { decryptedFile, metadata } =
+      //     await LitJsSdk.decryptZipFileWithMetadata({
+      //       file: file,
+      //       litNodeClient: litNodeClient,
+      //       sessionSigs,
+      //     });
+      //   console.log("decriptedmetada");
+      //   const blob = new Blob([decryptedFile], {
+      //     type: "application/octet-stream",
+      //   });
+      //   const downloadLink = document.createElement("a");
+      //   downloadLink.href = URL.createObjectURL(blob);
+      //   downloadLink.download = "example"; // Use the metadata to get the file name and type
     } catch (error) {
       alert(
         "Trouble decrypting filerouble decrypting filerouble decrypting filerouble decrypting filerouble decrypting file"
