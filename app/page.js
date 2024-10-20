@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import Head from "next/head";
 import Image from "next/image";
 import Files from "@/components/Files";
+
 import * as LitJsSdk from "@lit-protocol/lit-node-client";
 import { ethers } from "ethers";
 
@@ -16,20 +17,31 @@ import {
 
 export default function Home() {
   const [file, setFile] = useState("");
+  const friendRegistrationRef = useRef();
+
   const [cid, setCid] = useState("");
   const [uploading, setUploading] = useState(false);
   const [decryptionCid, setDecryptionCid] = useState("");
+  const [friendAddress, setFriendAddress] = useState("");
 
   const inputFile = useRef(null);
 
-  const uploadFile = async (fileToUpload) => {
+  const uploadFile = async () => {
     try {
-      const jsonExample = { cd: "23" };
+      console.log("Current friend address:", friendAddress);
+
+      const fileRes = await fetch(`/api/memories/${friendAddress}`, {
+        method: "GET",
+      });
+      const jsonExample = await fileRes.json();
+      const memories = jsonExample.memories;
+      console.log(jsonExample);
+
       setUploading(true);
+
       const litNodeClient = new LitJsSdk.LitNodeClient({
         litNetwork: "datil-dev",
       });
-      // then get the authSig
       await litNodeClient.connect();
       const authSig = await LitJsSdk.checkAndSignAuthMessage({
         chain: "ethereum",
@@ -50,7 +62,7 @@ export default function Home() {
       ];
 
       const { ciphertext, dataToEncryptHash } = await litNodeClient.encrypt({
-        dataToEncrypt: new TextEncoder().encode(JSON.stringify(jsonExample)),
+        dataToEncrypt: new TextEncoder().encode(JSON.stringify(memories)),
         accessControlConditions,
       });
 
@@ -59,14 +71,6 @@ export default function Home() {
         dataToEncryptHash,
         accessControlConditions,
       };
-      //   const encryptedZip = await LitJsSdk.encryptFileAndZipWithMetadata({
-      //     accessControlConditions: accs,
-      //     authSig,
-      //     chain: "ethereum",
-      //     file: fileToUpload,
-      //     litNodeClient: litNodeClient,
-      //     readme: "Use IPFS CID of this file to decrypt it",
-      //   });
 
       const encryptedBlob = new Blob([JSON.stringify(fileJson)], {
         type: "application/json",
@@ -74,7 +78,7 @@ export default function Home() {
       const encryptedFile = new File([encryptedBlob], "example2.json");
 
       const formData = new FormData();
-      formData.append("file", encryptedFile, encryptedFile.name);
+      formData.append("file", encryptedFile, memories.id);
       const res = await fetch("/api/files", {
         method: "POST",
         body: formData,
@@ -95,12 +99,7 @@ export default function Home() {
       const fileRes = await fetch(`/api/files/${fileToDecrypt}`, {
         method: "GET",
       });
-
-      //   console.log("resresrresr", fileRes);
-      //   const file = await fileRes.blob();
-      //   console.log("arrayBuffer", file);
       const file = await fileRes.text();
-      console.log("filefilefilefilefile", file);
       const { accessControlConditions, ciphertext, dataToEncryptHash } =
         JSON.parse(file);
       console.log(accessControlConditions);
@@ -158,20 +157,6 @@ export default function Home() {
       });
       console.log(decryptString);
       console.log(new TextDecoder("utf-8").decode(decryptString.decryptedData));
-
-      //   const { decryptedFile, metadata } =
-      //     await LitJsSdk.decryptZipFileWithMetadata({
-      //       file: file,
-      //       litNodeClient: litNodeClient,
-      //       sessionSigs,
-      //     });
-      //   console.log("decriptedmetada");
-      //   const blob = new Blob([decryptedFile], {
-      //     type: "application/octet-stream",
-      //   });
-      //   const downloadLink = document.createElement("a");
-      //   downloadLink.href = URL.createObjectURL(blob);
-      //   downloadLink.download = "example"; // Use the metadata to get the file name and type
     } catch (error) {
       alert(
         "Trouble decrypting filerouble decrypting filerouble decrypting filerouble decrypting filerouble decrypting file"
@@ -196,10 +181,31 @@ export default function Home() {
     }
   };
 
+  const handleRegistration = async () => {
+    try {
+      const response = await fetch("/api/registerFriend", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ friendAddress }),
+      });
+
+      if (response.ok) {
+        alert("Friend registered successfully");
+        console.log("Friend registered successfully");
+      } else {
+        console.error("Failed to register friend");
+      }
+    } catch (error) {
+      console.error("Error registering friend:", error);
+    }
+  };
+
   return (
     <>
       <Head>
-        <title>Pinata Next.js App</title>
+        <title>Lumina Demo</title>
         <meta name="description" content="Generated with create-pinata-app" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/pinnie.png" />
@@ -208,23 +214,16 @@ export default function Home() {
         <div className="hero-background">
           <div className="container">
             <div className="logo">
-              <Image
-                src="/logo.png"
-                alt="Pinata logo"
-                height={30}
-                width={115}
-              />
+              <Image src="/logo.png" alt="Pinata logo" height={50} width={50} />
             </div>
             <div className="hero">
               <div className="copy">
-                <h1>Pinata + Next.js</h1>
+                <h1>Lumina + Friend</h1>
                 <p>
-                  Update the <span className="code">.env.local</span> file to
-                  set your Pinata API key and (optionally) your IPFS gateway
-                  URL, restart the app, then click the Upload button and you'll
-                  see uploads to IPFS just work™️. If you've already uploaded
-                  files, click Load recent to see the most recently uploaded
-                  file.
+                  Secure your digital memories with Lumina Friend, leveraging
+                  cutting-edge Web3 encryption to ensure your shared moments
+                  remain private and accessible only to those you{" "}
+                  <span className="code">trust</span>
                 </p>
                 <input
                   type="file"
@@ -239,7 +238,7 @@ export default function Home() {
                   </button>
                   <button
                     disabled={uploading}
-                    onClick={() => inputFile.current.click()}
+                    onClick={() => uploadFile()}
                     className="btn"
                   >
                     {uploading ? "Uploading..." : "Upload"}
@@ -252,7 +251,7 @@ export default function Home() {
                   />
                   <button
                     onClick={() => decryptFile(decryptionCid)}
-                    className="mr-10 w-[150px] bg-light text-secondary border-2 border-secondary rounded-3xl py-2 px-4 hover:bg-secondary hover:text-light transition-all duration-300 ease-in-out"
+                    className="btn"
                   >
                     Decrypt
                   </button>
@@ -272,57 +271,29 @@ export default function Home() {
                 />
               </div>
             </div>
-          </div>
-        </div>
-        <div className="grid-background">
-          <div className="grid">
-            <div className="card">
-              <Image
-                src="/ufo.png"
-                alt="Pinnie floating with balloons"
-                height="200"
-                width="200"
-              />
-              <h2>Read the docs</h2>
-              <p>
-                SDKs, API reference, and recipes all designed to help you get
-                started faster.
-              </p>
-              <a
-                className="btn"
-                href="https://docs.pinata.cloud"
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                Explore the docs
-              </a>
-            </div>
-            <div className="card">
-              <Image
-                src="/rocket.png"
-                alt="Pinnie with scuba gear on"
-                height="200"
-                width="200"
-              />
-              <h2>Pinata dashboard</h2>
-              <p>
-                Log into your Pinata dashboard to see all your files, configure
-                an IPFS gateway, and more.
-              </p>
-              <a
-                className="btn"
-                href="https://app.pinata.cloud"
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                Go to the dashboard
-              </a>
+            <div className="max-w-md mx-auto ">
+              <h2 className="text-2xl font-bold">Lumina Friend Registration</h2>
+              <div className="flex space-x-2">
+                <input
+                  type="text"
+                  placeholder="Enter friend's Ethereum address"
+                  value={friendAddress}
+                  onChange={(e) => setFriendAddress(e.target.value)}
+                  className="flex-grow px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button
+                  onClick={() => handleRegistration().catch(console.error)}
+                  className="btn"
+                >
+                  Register
+                </button>
+              </div>
             </div>
           </div>
         </div>
+        <div className="grid-background"></div>
         <div className="footer-background">
           <div className="footer">
-            <p>Copyright © 2023 Pinata | All Rights Reserved </p>
             <div className="socials">
               <a href="https://twitter.com/pinatacloud" target="_blank">
                 <svg

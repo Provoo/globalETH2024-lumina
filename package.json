@@ -11,6 +11,7 @@
   "dependencies": {
     "@lit-protocol/auth-helpers": "^6.11.0",
     "@lit-protocol/lit-node-client": "^6.11.0",
+    "@supabase/supabase-js": "^2.45.6",
     "create-pinata-app": "0.1.0",
     "ethers": "v5",
     "next": "14.2.5",
