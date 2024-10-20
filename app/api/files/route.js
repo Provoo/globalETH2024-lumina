@@ -20,9 +20,9 @@ export async function POST(request) {
 
 export async function GET() {
   try {
-    const response = await pinata.listFiles();
-    console.log(response);
-    return NextResponse.json(response[0]);
+    const result = await pinata.files.list();
+    console.log(result);
+    return NextResponse.json(result);
   } catch (e) {
     console.log(e);
     return NextResponse.json(

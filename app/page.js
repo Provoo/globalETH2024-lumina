@@ -69,13 +69,14 @@ export default function Home() {
   const decryptFile = async (fileToDecrypt) => {
     try {
       // First we fetch the file from IPFS using the CID and our Gateway URL, then turn it into a blob
-      const fileRes = await fetch("/api/files", {
+      const fileRes = await fetch(`/api/files/${fileToDecrypt}`, {
         method: "GET",
       });
 
-      console.log(fileRes);
+      console.log("resresrresr", fileRes);
       const file = await fileRes.blob();
-      // We recreated the litNodeClient and the authSig
+      console.log("arrayBuffer", file);
+
       const litNodeClient = new LitJsSdk.LitNodeClient({
         litNetwork: "cayenne",
       });
@@ -83,15 +84,13 @@ export default function Home() {
       const authSig = await LitJsSdk.checkAndSignAuthMessage({
         chain: "ethereum",
       });
-      // Then we simpyl extract the file and metadata from the zip
-      // We could do more with this, like try to display it in the app UI if we wanted to
+
       const { decryptedFile, metadata } =
         await LitJsSdk.decryptZipFileWithMetadata({
           file: file,
           litNodeClient: litNodeClient,
           authSig: authSig,
         });
-      // After we have our dcypted file we can download it
       const blob = new Blob([decryptedFile], {
         type: "application/octet-stream",
       });
@@ -99,7 +98,9 @@ export default function Home() {
       downloadLink.href = URL.createObjectURL(blob);
       downloadLink.download = metadata.name; // Use the metadata to get the file name and type
     } catch (error) {
-      alert("Trouble decrypting file");
+      alert(
+        "Trouble decrypting filerouble decrypting filerouble decrypting filerouble decrypting filerouble decrypting file"
+      );
       console.log(error);
     }
   };
