@@ -1,24 +1,24 @@
 {
-	"name": "pinata-starter",
-	"version": "0.2.0",
-	"private": true,
-	"scripts": {
-		"dev": "next dev",
-		"build": "next build",
-		"start": "next start",
-		"lint": "next lint"
-	},
-	"dependencies": {
-		"@lit-protocol/auth-helpers": "^6.11.0",
-		"@lit-protocol/lit-node-client": "^6.0.0-beta.4",
-		"create-pinata-app": "0.1.0",
-		"ethers": "v5",
-		"next": "14.2.5",
-		"pinata": "^1.5.0",
-		"react": "^18",
-		"react-dom": "^18"
-	},
-	"devDependencies": {
-		"pino-pretty": "^11.3.0"
-	}
+  "name": "lumina",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@lit-protocol/auth-helpers": "^6.11.0",
+    "@lit-protocol/lit-node-client": "^6.11.0",
+    "create-pinata-app": "0.1.0",
+    "ethers": "v5",
+    "next": "14.2.5",
+    "pinata": "^1.5.0",
+    "react": "^18",
+    "react-dom": "^18"
+  },
+  "devDependencies": {
+    "pino-pretty": "^11.3.0"
+  }
 }
