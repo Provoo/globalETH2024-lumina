@@ -17,6 +17,8 @@
     "next": "14.2.5",
     "pinata": "^1.5.0",
     "react": "^18",
+    "@xmtp/xmtp-js": "^11.4.1",
+    "axios": "^1.5.0",
     "react-dom": "^18"
   },
   "devDependencies": {

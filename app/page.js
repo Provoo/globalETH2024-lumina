@@ -20,12 +20,65 @@ export default function Home() {
   const friendRegistrationRef = useRef();
 
   const [cid, setCid] = useState("");
+  const [walrusBlobID, setwalrusBlobID] = useState("");
   const [uploading, setUploading] = useState(false);
   const [decryptionCid, setDecryptionCid] = useState("");
   const [friendAddress, setFriendAddress] = useState("");
 
   const inputFile = useRef(null);
 
+  const uploadToWalrus = async (data, epochs = 1) => {
+    try {
+      const PUBLISHER = "http://walrus-publisher-testnet.overclock.run:9001";
+      const response = await fetch(`${PUBLISHER}/v1/store`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        console.log("");
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      const blobId = result.newlyCreated.blobObject.blobId;
+      setwalrusBlobID(blobId);
+      console.log("Upload successful. BlobId:", blobId);
+      console.log("Upload reuslt:", result);
+      return result;
+    } catch (error) {
+      alert("Trouble uploading file with walrous");
+      console.error("Error uploading to Walrus:", error);
+      throw error;
+    }
+  };
+
+  const downloadToWalrus = async () => {
+    try {
+      const PUBLISHER = "https://walrus-cache-testnet.overclock.run";
+      const response = await fetch(`${PUBLISHER}/v1/walrusBlobID`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        console.log("");
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.text();
+    } catch (error) {
+      alert("Trouble uploading file with walrous");
+      console.error("Error uploading to Walrus:", error);
+      throw error;
+    }
+  };
   const uploadFile = async () => {
     try {
       console.log("Current friend address:", friendAddress);
@@ -71,6 +124,9 @@ export default function Home() {
         dataToEncryptHash,
         accessControlConditions,
       };
+      console.log(JSON.stringify(fileJson));
+
+      const walrusResponse = await uploadToWalrus(fileJson, 5);
 
       const encryptedBlob = new Blob([JSON.stringify(fileJson)], {
         type: "application/json",
@@ -100,6 +156,7 @@ export default function Home() {
         method: "GET",
       });
       const file = await fileRes.text();
+      const walrusFile = await downloadToWalrus();
       const { accessControlConditions, ciphertext, dataToEncryptHash } =
         JSON.parse(file);
       console.log(accessControlConditions);
